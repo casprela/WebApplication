@@ -63,6 +63,16 @@ Public Class wsUsuarios
   Public Function Add(nombre As String, email As String, activo As String) As String
     Dim serializer As New JavaScriptSerializer()
 
+
+    Dim validacion = ValidadorJWT.ValidarPermiso("Add")
+    If Not validacion.EsValido Then
+      Return serializer.Serialize(New With {.success = False, .message = validacion.Mensaje})
+    End If
+
+    If String.IsNullOrEmpty(nombre) OrElse String.IsNullOrEmpty(email) Then
+      Return serializer.Serialize(New With {.success = False, .message = "Nombre y email son requeridos"})
+    End If
+
     If String.IsNullOrEmpty(nombre) OrElse String.IsNullOrEmpty(email) Then
       Return serializer.Serialize(New With {.success = False, .message = "Nombre y email son requeridos"})
     End If
@@ -93,6 +103,11 @@ Public Class wsUsuarios
   Public Function Update(id As Integer, nombre As String, email As String, activo As String) As String
     Dim serializer As New JavaScriptSerializer()
 
+    Dim validacion = ValidadorJWT.ValidarPermiso("Update")
+    If Not validacion.EsValido Then
+      Return serializer.Serialize(New With {.success = False, .message = validacion.Mensaje})
+    End If
+
     Dim usuario = usuarios.FirstOrDefault(Function(u) u.Id = id)
     If usuario Is Nothing Then
       Return serializer.Serialize(New With {.success = False, .message = "Usuario no encontrado"})
@@ -121,6 +136,11 @@ Public Class wsUsuarios
   <Script.Services.ScriptMethod(ResponseFormat:=Script.Services.ResponseFormat.Json, UseHttpGet:=True)>
   Public Function Delete(id As Integer) As String
     Dim serializer As New JavaScriptSerializer()
+
+    Dim validacion = ValidadorJWT.ValidarPermiso("Delete")
+    If Not validacion.EsValido Then
+      Return serializer.Serialize(New With {.success = False, .message = validacion.Mensaje})
+    End If
 
     Dim usuario = usuarios.FirstOrDefault(Function(u) u.Id = id)
     If usuario Is Nothing Then
